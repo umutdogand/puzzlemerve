@@ -199,12 +199,13 @@
     let startTime;
     let timerInterval;
     let tries = 0;
+    let gameLength = 8;
     const board = document.getElementById('gameBoard');
     const message = document.getElementById('message');
     const sound = document.getElementById('matchSound');
 
     function createCards(baseImages) {
-      const selectedImages = getRandomImages(baseImages, 8);
+      const selectedImages = getRandomImages(baseImages, gameLength);
       const mixed = [...selectedImages, ...selectedImages].sort(() => 0.5 - Math.random());
       cards = [];
 
@@ -255,7 +256,7 @@
         sound.play();
         matchCount++;
 
-        if (matchCount === images.length) {
+        if (matchCount === gameLength) {
           message.textContent = "Bravo Askima, daha zor seviye icin lufen sevgilinize muracaat ediniz! 💖";
           clearInterval(timerInterval);
         }
