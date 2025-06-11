@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Merve 💖</title>
@@ -41,7 +42,8 @@
       transform: rotateY(180deg);
     }
 
-    .card-front, .card-back {
+    .card-front,
+    .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -82,8 +84,13 @@
     }
 
     @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.05);
+      }
     }
 
     button {
@@ -100,40 +107,88 @@
     button:hover {
       background-color: #c2185b;
     }
-	
-	#timer {
-	  font-size: 18px;
-	  margin-top: 10px;
-	  color: #555;
-	}
-	
-	#tries {
-	  font-size: 18px;
-	  margin-top: 5px;
-	  color: #555;
-	}
+
+    #timer {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    #tries {
+      font-size: 18px;
+      margin-top: 5px;
+      color: #555;
+    }
   </style>
 </head>
+
 <body>
   <h1>Merve icin hafiza oyunu 💘</h1>
   <div id="timer">⏱ Gece Sure: 00:00</div>
   <div id="tries">🎯 Deneme Sayisi: 0</div>
   <div class="game-board" id="gameBoard"></div>
   <div id="message"></div>
-  <button onclick="restartGame()">Yeniden Basla</button>
-
+  <button id="normalBtn">Yeniden Basla(🥰)</button>
+  <button id="funnyBtn"> Yeniden Basla(😂)</button>
   <audio id="matchSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
 
   <script>
     const images = [
-		  'images/1.JPG',
-		  'images/2.JPG', 
-		  'images/3.JPG',
-		  'images/4.JPG',
-		  'images/5.JPG',
-		  'images/6.JPG',
-		  'images/7.JPG',
-		  'images/8.JPG'
+      'images/normal/1.JPG',
+      'images/normal/2.JPG',
+      'images/normal/3.JPG',
+      'images/normal/4.JPG',
+      'images/normal/5.JPG',
+      'images/normal/6.JPG',
+      'images/normal/7.JPG',
+      'images/normal/8.JPG',
+      'images/normal/9.JPG',
+      'images/normal/10.JPG',
+      'images/normal/11.JPG',
+      'images/normal/12.JPG',
+      'images/normal/13.JPG',
+      'images/normal/14.JPG',
+      'images/normal/15.JPG',
+      'images/normal/16.JPG',
+      'images/normal/17.JPG',
+      'images/normal/18.JPG',
+      'images/normal/19.JPG',
+      'images/normal/20.JPG',
+      'images/normal/21.JPG',
+      'images/normal/22.JPG',
+      'images/normal/23.JPG',
+      'images/normal/24.JPG',
+      'images/normal/25.JPG',
+      'images/normal/26.JPG'
+    ];
+
+    const funnyImages = [
+      'images/funny/1.JPG',
+      'images/funny/2.JPG',
+      'images/funny/3.JPG',
+      'images/funny/4.JPG',
+      'images/funny/5.JPG',
+      'images/funny/6.JPG',
+      'images/funny/7.JPG',
+      'images/funny/8.JPG',
+      'images/funny/9.JPG',
+      'images/funny/10.JPG',
+      'images/funny/11.JPG',
+      'images/funny/12.JPG',
+      'images/funny/13.JPG',
+      'images/funny/14.JPG',
+      'images/funny/15.JPG',
+      'images/funny/16.JPG',
+      'images/funny/17.JPG',
+      'images/funny/18.JPG',
+      'images/funny/19.JPG',
+      'images/funny/20.JPG',
+      'images/funny/21.JPG',
+      'images/funny/22.JPG',
+      'images/funny/23.JPG',
+      'images/funny/24.JPG',
+      'images/funny/25.JPG',
+      'images/funny/26.JPG'
     ];
 
     let cards = [];
@@ -141,15 +196,16 @@
     let secondCard = null;
     let lock = false;
     let matchCount = 0;
-	let startTime;
-	let timerInterval;
-	let tries = 0;
+    let startTime;
+    let timerInterval;
+    let tries = 0;
     const board = document.getElementById('gameBoard');
     const message = document.getElementById('message');
     const sound = document.getElementById('matchSound');
 
-    function createCards() {
-      const mixed = [...images, ...images].sort(() => 0.5 - Math.random());
+    function createCards(baseImages) {
+      const selectedImages = getRandomImages(baseImages, 8);
+      const mixed = [...selectedImages, ...selectedImages].sort(() => 0.5 - Math.random());
       cards = [];
 
       mixed.forEach(src => {
@@ -202,7 +258,7 @@
         if (matchCount === images.length) {
           message.textContent = "Bravo Askima, daha zor seviye icin lufen sevgilinize muracaat ediniz! 💖";
           clearInterval(timerInterval);
-		}
+        }
 
         resetTurn();
       } else {
@@ -212,9 +268,9 @@
           resetTurn();
         }, 800);
       }
-	  
-	  tries++;
-	document.getElementById('tries').textContent = `🎯 Deneme Sayisi: ${tries}`;
+
+      tries++;
+      document.getElementById('tries').textContent = `🎯 Deneme Sayisi: ${tries}`;
     }
 
     function resetTurn() {
@@ -222,31 +278,46 @@
       lock = false;
     }
 
-    function restartGame() {
+    function startGame(mainImages) {
       board.innerHTML = '';
       message.textContent = '';
       matchCount = 0;
-      createCards();
-	  clearInterval(timerInterval);
-	  document.getElementById('timer').textContent = '⏱ Gecen Sure: 00:00';
-	  startTimer();
-	  
-	  tries = 0;
-	  document.getElementById('tries').textContent = '🎯 Deneme Sayisi: 0';
+      createCards(mainImages);
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = '⏱ Gecen Sure: 00:00';
+      startTimer();
+
+      tries = 0;
+      document.getElementById('tries').textContent = '🎯 Deneme Sayisi: 0';
     }
 
-	function startTimer() {
-	  startTime = Date.now();
-	  timerInterval = setInterval(() => {
-		const elapsed = Math.floor((Date.now() - startTime) / 1000);
-		const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
-		const seconds = String(elapsed % 60).padStart(2, '0');
-		document.getElementById('timer').textContent = `⏱ Gecen Sure: ${minutes}:${seconds}`;
-	  }, 1000);
-	}
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const seconds = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `⏱ Gecen Sure: ${minutes}:${seconds}`;
+      }, 1000);
+    }
+
+    function getRandomImages(sourceArray, count) {
+      const shuffled = [...sourceArray].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+
+    document.getElementById('funnyBtn').addEventListener('click', () => {
+      startGame(funnyImages);
+    });
+
+    document.getElementById('normalBtn').addEventListener('click', () => {
+      startGame(images);
+    });
+
     // Initial setup
-    createCards();
-	startTimer();
+    createCards(images);
+    startTimer();
   </script>
 </body>
+
 </html>
