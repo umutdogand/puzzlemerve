@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Merve 💖</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background: #fff0f5;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #e91e63;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 200px);
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      width: 200px;
+      height: 200px;
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+    }
+
+    .flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+    }
+
+    .card-front {
+      background: #f06292;
+    }
+
+    .card-back {
+      background: #fff;
+      transform: rotateY(180deg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card-back img {
+      width: 90%;
+      height: 90%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .matched {
+      pointer-events: none;
+      border: 2px solid #4caf50;
+      box-shadow: 0 0 10px #4caf50;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #d63384;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #e91e63;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #c2185b;
+    }
+	
+	#timer {
+	  font-size: 18px;
+	  margin-top: 10px;
+	  color: #555;
+	}
+	
+	#tries {
+	  font-size: 18px;
+	  margin-top: 5px;
+	  color: #555;
+	}
+  </style>
+</head>
+<body>
+  <h1>Merve icin hafiza oyunu 💘</h1>
+  <div id="timer">⏱ Gece Sure: 00:00</div>
+  <div id="tries">🎯 Deneme Sayisi: 0</div>
+  <div class="game-board" id="gameBoard"></div>
+  <div id="message"></div>
+  <button onclick="restartGame()">Yeniden Basla</button>
+
+  <audio id="matchSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
+  <script>
+    const images = [
+		  'images/1.JPG',
+		  'images/2.JPG', 
+		  'images/3.JPG',
+		  'images/4.JPG',
+		  'images/5.JPG',
+		  'images/6.JPG',
+		  'images/7.JPG',
+		  'images/8.JPG'
+    ];
+
+    let cards = [];
+    let firstCard = null;
+    let secondCard = null;
+    let lock = false;
+    let matchCount = 0;
+	let startTime;
+	let timerInterval;
+	let tries = 0;
+    const board = document.getElementById('gameBoard');
+    const message = document.getElementById('message');
+    const sound = document.getElementById('matchSound');
+
+    function createCards() {
+      const mixed = [...images, ...images].sort(() => 0.5 - Math.random());
+      cards = [];
+
+      mixed.forEach(src => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        const front = document.createElement('div');
+        front.className = 'card-front';
+
+        const back = document.createElement('div');
+        back.className = 'card-back';
+        const img = document.createElement('img');
+        img.src = src;
+        back.appendChild(img);
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        card.appendChild(inner);
+        card.dataset.image = src;
+
+        card.addEventListener('click', () => handleFlip(card));
+
+        board.appendChild(card);
+        cards.push(card);
+      });
+    }
+
+    function handleFlip(card) {
+      if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+      card.classList.add('flipped');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      secondCard = card;
+      lock = true;
+
+      if (firstCard.dataset.image === secondCard.dataset.image) {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        sound.play();
+        matchCount++;
+
+        if (matchCount === images.length) {
+          message.textContent = "Bravo Askima, daha zor seviye icin lufen sevgilinize muracaat ediniz! 💖";
+          clearInterval(timerInterval);
+		}
+
+        resetTurn();
+      } else {
+        setTimeout(() => {
+          firstCard.classList.remove('flipped');
+          secondCard.classList.remove('flipped');
+          resetTurn();
+        }, 800);
+      }
+	  
+	  tries++;
+	document.getElementById('tries').textContent = `🎯 Deneme Sayisi: ${tries}`;
+    }
+
+    function resetTurn() {
+      [firstCard, secondCard] = [null, null];
+      lock = false;
+    }
+
+    function restartGame() {
+      board.innerHTML = '';
+      message.textContent = '';
+      matchCount = 0;
+      createCards();
+	  clearInterval(timerInterval);
+	  document.getElementById('timer').textContent = '⏱ Gecen Sure: 00:00';
+	  startTimer();
+	  
+	  tries = 0;
+	  document.getElementById('tries').textContent = '🎯 Deneme Sayisi: 0';
+    }
+
+	function startTimer() {
+	  startTime = Date.now();
+	  timerInterval = setInterval(() => {
+		const elapsed = Math.floor((Date.now() - startTime) / 1000);
+		const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+		const seconds = String(elapsed % 60).padStart(2, '0');
+		document.getElementById('timer').textContent = `⏱ Gecen Sure: ${minutes}:${seconds}`;
+	  }, 1000);
+	}
+    // Initial setup
+    createCards();
+	startTimer();
+  </script>
+</body>
+</html>
